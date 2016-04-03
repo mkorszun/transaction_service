@@ -13,18 +13,18 @@ public class TransactionService {
 
     private Set<Node> nodes = new HashSet<>();
 
-    public List<Long> list(String type) {
+    public synchronized List<Long> list(String type) {
         List<Node> found = new LinkedList<>();
         Node.find(type, nodes, found);
         return found.stream().map(p -> p.id).collect(Collectors.toList());
     }
 
-    public Transaction get(long id) {
+    public synchronized Transaction get(long id) {
         Node node = Node.find(id, nodes);
         return node != null ? node.transaction : null;
     }
 
-    public void put(long id, Transaction transaction) throws TransactionServiceException {
+    public synchronized void put(long id, Transaction transaction) throws TransactionServiceException {
 
         if (Node.find(id, nodes) != null) throw new TransactionAlreadyExists();
 
@@ -45,7 +45,7 @@ public class TransactionService {
         }
     }
 
-    public double getChildSum(long id) throws ParentTransactionNotFound {
+    public synchronized double getChildSum(long id) throws ParentTransactionNotFound {
         Node parent = Node.find(id, nodes);
 
         if (parent != null) {
