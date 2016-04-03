@@ -4,6 +4,7 @@ import com.number26.model.Transaction;
 import com.number26.service.TransactionService;
 import com.number26.utils.HTTPClient;
 import com.number26.utils.HTTPClientFactory;
+import junitx.framework.ListAssert;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -103,6 +104,7 @@ public class TransactionControllerTest {
     @org.junit.Test
     public void shouldReturnTransaction() throws Exception {
         Transaction transaction = client.read("1");
+
         assertEquals(10d, transaction.getAmount());
         assertEquals("type1", transaction.getType());
         assertNull(transaction.getParentID());
@@ -119,7 +121,7 @@ public class TransactionControllerTest {
 
     @org.junit.Test
     public void shouldReturnTransactionListForType() throws Exception {
-        assertEquals(asList(1, 2, 3), client.list("type1"));
+        ListAssert.assertEquals(asList(1, 2, 3), client.list("type1"));
     }
 
     @org.junit.Test

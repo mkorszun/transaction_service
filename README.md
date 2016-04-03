@@ -25,11 +25,6 @@ $ curl http://localhost:4567/transactionservice/transaction/sadas
 ~~~
 
 ## Decisions
-* data is stored in two structures: `hashmap` and `forest` (disjoint union of trees)
-* `forest` is a storage used for transaction relations: summing transactions linked to a particular transaction means
-finding parent node and traversing it
-* `hashmap` is a storage used for reading (`O(1)`) and listing by type
+* data is stored in a `forest` (disjoint union of trees)
+* summing transactions linked to a particular transaction means finding parent node and traversing it
 
-## Discussion
-Would be possible to totally remove `hashmap` but this would increase read and list time complexity with current forest
-implementation.

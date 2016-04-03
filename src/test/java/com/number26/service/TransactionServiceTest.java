@@ -1,6 +1,7 @@
 package com.number26.service;
 
 import com.number26.model.Transaction;
+import junitx.framework.ListAssert;
 
 import static java.util.Arrays.asList;
 import static junit.framework.Assert.assertEquals;
@@ -84,7 +85,7 @@ public class TransactionServiceTest {
         service.put(4, new Transaction(13, "type2"));
         service.put(5, new Transaction(14, "type3"));
 
-        assertEquals(service.list("type1"), asList(1L, 2L, 3L));
+        ListAssert.assertEquals(service.list("type1"), asList(1L, 2L, 3L));
         assertEquals(service.list("type2"), asList(4L));
         assertEquals(service.list("type3"), asList(5L));
     }

@@ -1,5 +1,6 @@
 package com.number26.node;
 
+import com.number26.model.Transaction;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -7,12 +8,12 @@ import java.util.Set;
 public class Node {
 
     public long id;
-    public double amount;
+    public Transaction transaction;
     Set<Node> children = new LinkedHashSet<>();
 
-    public Node(long id, double amount) {
+    public Node(long id, Transaction transaction) {
         this.id = id;
-        this.amount = amount;
+        this.transaction = transaction;
     }
 
     public void addChild(Node... nodes) {
@@ -28,6 +29,13 @@ public class Node {
             if (node != null) return node;
         }
         return null;
+    }
+
+    public static void find(String type, Set<Node> nodes, List<Node> found) {
+        for (Node n : nodes) {
+            if (type.equals(n.transaction.getType())) found.add(n);
+            find(type, n.children, found);
+        }
     }
 
     public static void traverse(Node n, List<Node> visited) {

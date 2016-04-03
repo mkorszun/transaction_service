@@ -1,5 +1,6 @@
 package com.number26.node;
 
+import com.number26.model.Transaction;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -45,18 +46,35 @@ public class NodeTest {
         assertEquals(9, traversed2.get(0).id);
     }
 
+    @org.junit.Test
+    public void shouldReturnNodesForType() throws Exception {
+        List<Node> found1 = new ArrayList();
+        List<Node> found2 = new ArrayList();
+
+        Node.find("type1", buildForest(), found1);
+        Node.find("type3", buildForest(), found2);
+
+        assertEquals(2, found1.size());
+        assertEquals(1, found1.get(0).id);
+        assertEquals(2, found1.get(1).id);
+        assertEquals(3, found2.size());
+        assertEquals(5, found2.get(0).id);
+        assertEquals(6, found2.get(1).id);
+        assertEquals(7, found2.get(2).id);
+    }
+
     //================================================================================================================//
     // Helpers
     //================================================================================================================//
 
     private static final Node buildTree1() {
-        Node n1 = new Node(1, 10);
-        Node n2 = new Node(2, 11);
-        Node n3 = new Node(3, 12);
-        Node n4 = new Node(4, 13);
-        Node n5 = new Node(5, 14);
-        Node n6 = new Node(6, 15);
-        Node n7 = new Node(7, 16);
+        Node n1 = new Node(1, new Transaction(10, "type1"));
+        Node n2 = new Node(2, new Transaction(11, "type1"));
+        Node n3 = new Node(3, new Transaction(12, "type2"));
+        Node n4 = new Node(4, new Transaction(13, "type2"));
+        Node n5 = new Node(5, new Transaction(14, "type3"));
+        Node n6 = new Node(6, new Transaction(15, "type3"));
+        Node n7 = new Node(7, new Transaction(16, "type3"));
         n4.addChild(n5, n6, n7);
         n3.addChild(n4);
         n1.addChild(n2, n3);
@@ -64,8 +82,8 @@ public class NodeTest {
     }
 
     private static final Node buildTree2() {
-        Node n8 = new Node(8, 17);
-        Node n9 = new Node(9, 18);
+        Node n8 = new Node(8, new Transaction(17, "type4"));
+        Node n9 = new Node(9, new Transaction(18, "type4"));
         n8.addChild(n9);
         return n8;
     }
