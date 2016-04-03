@@ -53,6 +53,11 @@ public class TransactionController {
             response.body(jsonTransformer.render(new ResponseNOK("transaction id should be long value")));
         });
 
+        exception(TransactionService.TransactionAlreadyExists.class, (e, request, response) -> {
+            response.status(409);
+            response.body(jsonTransformer.render(new ResponseNOK("transaction with such an id already exists")));
+        });
+
         exception(Exception.class, (e, request, response) -> {
             response.status(500);
             response.body(jsonTransformer.render(new ResponseNOK("internal error")));

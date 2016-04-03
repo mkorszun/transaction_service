@@ -5,6 +5,11 @@
 $ mvn clean package
 ~~~
 
+## Test
+~~~bash
+$ mvn test
+~~~
+
 ## Usage
 ~~~bash
 $ java -jar target/transaction_service-1.0-SNAPSHOT.jar

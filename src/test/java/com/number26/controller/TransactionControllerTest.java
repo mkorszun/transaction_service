@@ -4,7 +4,9 @@ import com.number26.model.Transaction;
 import com.number26.service.TransactionService;
 import com.number26.utils.HTTPClient;
 import com.number26.utils.HTTPClientFactory;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
@@ -34,27 +36,43 @@ public class TransactionControllerTest {
         stop();
     }
 
+    @Before public void setup() throws TransactionService.TransactionServiceException {
+        service.put(1, new Transaction(10, "type1"));
+        service.put(2, new Transaction(11, "type1"));
+        service.put(3, new Transaction(12, "type1", 1));
+        service.put(4, new Transaction(13, "type2", 1));
+        service.put(5, new Transaction(14, "type3", 1));
+        service.put(6, new Transaction(14, "type3", 3));
+    }
+
+    @After public void clean() {
+        service.reset();
+    }
+
+    //================================================================================================================//
+    // Create transaction
+    //================================================================================================================//
+
     @org.junit.Test
     public void shouldCreateTransaction() throws Exception {
-        TransactionController.Response resp = client.create("1", new Transaction(100, "type1"));
-        Transaction result = service.get(1);
+        TransactionController.Response resp = client.create("101", new Transaction(100, "type101"));
+        Transaction result = service.get(101);
 
         assertEquals("ok", resp.status);
         assertEquals(100d, result.getAmount());
-        assertEquals("type1", result.getType());
+        assertEquals("type101", result.getType());
         assertNull(result.getParentID());
     }
 
     @org.junit.Test
     public void shouldCreateTransactionLinkedToParent() throws Exception {
-        service.put(1, new Transaction(100, "type1"));
-        TransactionController.Response resp = client.create("2", new Transaction(100, "type2", 1));
-        Transaction result = service.get(2);
+        TransactionController.Response resp = client.create("202", new Transaction(100, "type202", 2));
+        Transaction result = service.get(202);
 
         assertEquals("ok", resp.status);
         assertEquals(100d, result.getAmount());
-        assertEquals("type2", result.getType());
-        assertEquals(Long.valueOf(1), result.getParentID());
+        assertEquals("type202", result.getType());
+        assertEquals(Long.valueOf(2), result.getParentID());
     }
 
     @org.junit.Test
@@ -68,16 +86,25 @@ public class TransactionControllerTest {
     public void shouldFailToCreateTransactionWhenNonExistingParentTransactionId() throws Exception {
         thrown.expect(Exception.class);
         thrown.expectMessage("parent transaction not found");
-        client.create("1", new Transaction(100, "type2", 123));
+        client.create("101", new Transaction(100, "type2", 123));
     }
 
     @org.junit.Test
-    public void shouldReturnTransaction() throws Exception {
-        service.put(1, new Transaction(111, "type3"));
-        Transaction transaction = client.read("1");
+    public void shouldFailToCreateTransactionWhenTransactionIdAlreadyPresent() throws Exception {
+        thrown.expect(Exception.class);
+        thrown.expectMessage("transaction with such an id already exists");
+        client.create("1", new Transaction(100, "type2"));
+    }
 
-        assertEquals(111d, transaction.getAmount());
-        assertEquals("type3", transaction.getType());
+    //================================================================================================================//
+    // Get transaction
+    //================================================================================================================//
+
+    @org.junit.Test
+    public void shouldReturnTransaction() throws Exception {
+        Transaction transaction = client.read("1");
+        assertEquals(10d, transaction.getAmount());
+        assertEquals("type1", transaction.getType());
         assertNull(transaction.getParentID());
     }
 
@@ -86,42 +113,44 @@ public class TransactionControllerTest {
         assertNull(client.read("12"));
     }
 
-    @org.junit.Test
-    public void shouldReturnListOfIdsForType() throws Exception {
-        service.put(1, new Transaction(100, "myType"));
-        service.put(2, new Transaction(100, "myType"));
-        service.put(3, new Transaction(100, "myType"));
+    //================================================================================================================//
+    // List transactions
+    //================================================================================================================//
 
-        assertEquals(asList(1, 2, 3), client.list("myType"));
+    @org.junit.Test
+    public void shouldReturnTransactionListForType() throws Exception {
+        assertEquals(asList(1, 2, 3), client.list("type1"));
     }
 
     @org.junit.Test
-    public void shouldReturnEmptyListOfIdsForNonExistingType() throws Exception {
+    public void shouldReturnEmptyListForNonExistingType() throws Exception {
         assertEquals(asList(), client.list("ghost"));
     }
 
-    @org.junit.Test
-    public void shouldReturnSumLinkedToParentTransaction() throws Exception {
-        service.put(1, new Transaction(10, "type1"));
-        service.put(2, new Transaction(11, "type1"));
-        service.put(3, new Transaction(12, "type1", 1));
-        service.put(4, new Transaction(13, "type2", 1));
-        service.put(5, new Transaction(14, "type3", 1));
+    //================================================================================================================//
+    // Sum linked transactions
+    //================================================================================================================//
 
-        assertEquals(39d, client.sum("1").sum);
+    @org.junit.Test
+    public void shouldReturnTransactionSumLinkedToParentTransaction() throws Exception {
+        assertEquals(53d, client.sum("1").sum);
     }
 
     @org.junit.Test
-    public void shouldFailToReturnSumWhenNonExistingParentTransaction() throws Exception {
+    public void shouldFailToReturnTransactionSumWhenNonExistingParentTransaction() throws Exception {
         thrown.expect(Exception.class);
         thrown.expectMessage("parent transaction not found");
         client.sum("456");
     }
 
     @org.junit.Test
-    public void shouldFailToReturnSumWhenWrongParentTransactionIdFormat() throws Exception {
+    public void shouldFailToReturnTransactionSumWhenWrongParentTransactionIdFormat() throws Exception {
         thrown.expect(Exception.class);
         thrown.expectMessage("transaction id should be long value");
         client.sum("abc");
     }
+
+    //================================================================================================================//
+    //================================================================================================================//
+    //================================================================================================================//
 }

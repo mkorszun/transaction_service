@@ -9,8 +9,6 @@ public class Transaction implements Serializable {
     @SerializedName("type") protected String type;
     @SerializedName("parent_id") protected Long parentID = null;
 
-    protected transient double childAmount = 0;
-
     public Transaction(double amount, String type) {
         this.amount = amount;
         this.type = type;
@@ -32,13 +30,5 @@ public class Transaction implements Serializable {
 
     public Long getParentID() {
         return parentID;
-    }
-
-    public double getChildAmount() {
-        return childAmount;
-    }
-
-    public void addChildAmount(double amount) {
-        this.childAmount += amount;
     }
 }
